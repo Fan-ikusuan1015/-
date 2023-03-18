@@ -1,0 +1,111 @@
+import pygame
+import random
+
+# 游戏窗口大小
+WINDOW_WIDTH = 800
+WINDOW_HEIGHT = 600
+
+# 颜色定义
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+RED = (255, 0, 0)
+
+# 初始化pygame
+pygame.init()
+
+# 创建游戏窗口
+window = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
+pygame.display.set_caption("跑酷游戏")
+
+# 加载图像资源
+player_image = pygame.image.load("player.png").convert_alpha()
+obstacle_image = pygame.image.load("obstacle.png").convert_alpha()
+
+# 定义游戏角色
+class Player(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.image = player_image
+        self.rect = self.image.get_rect()
+        self.rect.x = 50
+        self.rect.y = WINDOW_HEIGHT - 100
+        self.speed = 0
+
+    def jump(self):
+        self.speed = -20
+
+    def update(self):
+        self.speed += 1
+        self.rect.y += self.speed
+        if self.rect.bottom > WINDOW_HEIGHT - 100:
+            self.rect.bottom = WINDOW_HEIGHT - 100
+            self.speed = 0
+
+# 定义障碍物
+class Obstacle(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.image = obstacle_image
+        self.rect = self.image.get_rect()
+        self.rect.x = WINDOW_WIDTH
+        self.rect.y = WINDOW_HEIGHT - 120
+        self.speed = 10
+
+    def update(self):
+        self.rect.x -= self.speed
+        if self.rect.right < 0:
+            self.kill()
+
+# 创建游戏角色和障碍物的精灵组
+all_sprites = pygame.sprite.Group()
+obstacles = pygame.sprite.Group()
+
+player = Player()
+all_sprites.add(player)
+
+# 定义游戏循环
+clock = pygame.time.Clock()
+score = 0
+running = True
+while running:
+    # 处理事件
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE:
+                player.jump()
+
+    # 生成障碍物
+    if random.randint(0, 100) < 10:
+        obstacle = Obstacle()
+        all_sprites.add(obstacle)
+        obstacles.add(obstacle)
+
+    # 更新游戏角色和障碍物的位置
+    all_sprites.update()
+    obstacles.update()
+
+    # 检测碰撞
+    if pygame.sprite.spritecollide(player, obstacles, False):
+        running = False
+
+    # 绘制游戏界面
+    window.fill(WHITE)
+    all_sprites.draw(window)
+
+    # 显示得分
+    score += 1
+    font = pygame.font.SysFont(None, 48)
+    text = font.render("Score: " + str(score), True, BLACK)
+    window.blit(text, (20, 20))
+
+    # 更新窗口
+    pygame.display.update()
+
+    # 控制游戏速度
+    clock.tick(30)
+
+# 游戏结束
+font = pygame.font.SysFont(None, 72)
+text = font.render("Game Over", True, RED
