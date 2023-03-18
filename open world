@@ -1,0 +1,77 @@
+import random
+
+# 定义地图大小和地形
+MAP_WIDTH = 10
+MAP_HEIGHT = 10
+terrain = ["草地", "森林", "山地", "沙漠"]
+
+# 定义玩家和游戏状态
+player = {"x": 0, "y": 0, "health": 100}
+game_over = False
+
+# 生成随机地图
+def generate_map():
+    game_map = []
+    for i in range(MAP_HEIGHT):
+        row = []
+        for j in range(MAP_WIDTH):
+            row.append(random.choice(terrain))
+        game_map.append(row)
+    return game_map
+
+# 显示地图和玩家位置
+def display_map():
+    for i in range(MAP_HEIGHT):
+        for j in range(MAP_WIDTH):
+            if player["x"] == j and player["y"] == i:
+                print("[玩家]", end="")
+            else:
+                print(f"[{game_map[i][j]}]", end="")
+        print()
+
+# 移动玩家
+def move_player(dx, dy):
+    player["x"] += dx
+    player["y"] += dy
+    if player["x"] < 0:
+        player["x"] = 0
+    elif player["x"] >= MAP_WIDTH:
+        player["x"] = MAP_WIDTH - 1
+    if player["y"] < 0:
+        player["y"] = 0
+    elif player["y"] >= MAP_HEIGHT:
+        player["y"] = MAP_HEIGHT - 1
+
+# 与环境交互
+def interact():
+    tile = game_map[player["y"]][player["x"]]
+    if tile == "草地":
+        print("你正在草地上，没有发现任何有趣的事情。")
+    elif tile == "森林":
+        print("你正在森林里，可能会遇到一些野生动物。")
+    elif tile == "山地":
+        print("你正在山地上，可能会发现一些宝藏。")
+    elif tile == "沙漠":
+        print("你正在沙漠里，需要小心节省体力。")
+        player["health"] -= 10
+        print(f"你的健康值下降了，现在是 {player['health']}。")
+
+# 开始游戏循环
+game_map = generate_map()
+while not game_over:
+    display_map()
+    move = input("输入方向键移动，按回车键确认：")
+    if move == "w":
+        move_player(0, -1)
+    elif move == "a":
+        move_player(-1, 0)
+    elif move == "s":
+        move_player(0, 1)
+    elif move == "d":
+        move_player(1, 0)
+    elif move == "q":
+        game_over = True
+    interact()
+    if player["health"] <= 0:
+        print("你的健康值降到了0，游戏结束！")
+        game_over = True
